@@ -1,0 +1,39 @@
+package com.banking.banking_management_system.entity;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.time.LocalDate;
+
+
+@Getter
+@Setter
+@Entity
+@Table(name = "customers")
+public class Customer extends BaseEntity {
+    @Column(nullable = false)
+    private String firstName;
+
+    private String lastName;
+
+    @Column(nullable = false, unique = true)
+    private String phone;
+
+    private LocalDate dateOfBirth;
+
+    private String address;
+
+    @Column(unique = true)
+    private String aadhaarNumber;
+
+    @Column(unique = true)
+    private String panNumber;
+
+    @Column(nullable = false)
+    private boolean kycVerified = false;
+
+    @OneToOne
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    private User user;
+}
