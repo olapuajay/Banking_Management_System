@@ -1,6 +1,8 @@
 package com.banking.banking_management_system.controller;
 
+import com.banking.banking_management_system.dto.request.auth.LoginRequest;
 import com.banking.banking_management_system.dto.request.auth.RegisterRequest;
+import com.banking.banking_management_system.dto.response.auth.AuthResponse;
 import com.banking.banking_management_system.dto.response.auth.RegisterResponse;
 import com.banking.banking_management_system.service.AuthenticationService;
 import jakarta.validation.Valid;
@@ -25,5 +27,12 @@ public class AuthController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(response);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
+        AuthResponse response = authenticationService.login(request);
+
+        return ResponseEntity.ok(response);
     }
 }

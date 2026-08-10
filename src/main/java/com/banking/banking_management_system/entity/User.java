@@ -1,6 +1,7 @@
 package com.banking.banking_management_system.entity;
 
 import com.banking.banking_management_system.enums.Role;
+import com.banking.banking_management_system.enums.UserStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,8 +21,9 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private Role role;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private boolean enabled = true;
+    private UserStatus status = UserStatus.ACTIVE;
 
     @OneToOne(mappedBy = "user")
     private Customer customer;
