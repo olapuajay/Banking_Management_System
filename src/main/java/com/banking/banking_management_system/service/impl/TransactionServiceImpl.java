@@ -26,6 +26,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class TransactionServiceImpl implements TransactionService {
@@ -39,13 +41,13 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     @Transactional
     public TransactionResponse deposit(DepositRequest request) {
-        Account account = getCurrentCustomerAccount(request.getAccountNumber());
+        Account account = getCurrentCustomerAccountForUpdate(request.getAccountNumber());
 
         validateAccountForTransaction(account);
 
         account.setBalance(account.getBalance().add(request.getAmount()));
 
-        accountRepository.save(account);
+//        accountRepository.save(account);
 
         Transaction transaction = new Transaction();
 
@@ -64,7 +66,7 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     @Transactional
     public TransactionResponse withdraw(WithdrawRequest request) {
-        Account account = getCurrentCustomerAccount(request.getAccountNumber());
+        Account account = getCurrentCustomerAccountForUpdate(request.getAccountNumber());
 
         validateAccountForTransaction(account);
 
@@ -74,7 +76,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         account.setBalance(account.getBalance().subtract(request.getAmount()));
 
-        accountRepository.save(account);
+//        accountRepository.save(account);
 
         Transaction transaction = new Transaction();
 
@@ -93,26 +95,58 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     @Transactional
     public TransactionResponse transfer(TransferRequest request) {
-        Account sourceAccount = getCurrentCustomerAccount(request.getSourceAccountNumber());
+        String email = SecurityUtils.getCurrentUserEmail();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        Customer customer = customerRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Customer profile not found"));
+
+        Account sourceAccount = accountRepository.findByAccountNumber(request.getSourceAccountNumber())
+                .orElseThrow(() -> new ResourceNotFoundException("Source account not found"));
+
         Account destinationAccount = accountRepository.findByAccountNumber(request.getDestinationAccountNumber())
                 .orElseThrow(() -> new ResourceNotFoundException("Destination account not found"));
+
+        if(!sourceAccount.getCustomer().getId().equals(customer.getId())) {
+            throw new UnauthorizedException("You do not have access to the source account");
+        }
 
         if (sourceAccount.getAccountNumber().equals(destinationAccount.getAccountNumber())) {
             throw new InvalidTransactionException("Source and destination accounts cannot be the same");
         }
 
-        validateAccountForTransaction(sourceAccount);
-        validateAccountForTransaction(destinationAccount);
+        List<Long> accountIds = List.of(sourceAccount.getId(), destinationAccount.getId());
 
-        if(sourceAccount.getBalance().compareTo(request.getAmount()) < 0) {
+        accountIds = accountIds.stream()
+                .sorted()
+                .toList();
+
+        List<Account> lockedAccounts = accountRepository.findAccountsForUpdate(accountIds);
+
+        Account lockedSource = lockedAccounts.stream()
+                .filter(a -> a.getId().equals(sourceAccount.getId()))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Source account not found"));
+
+        Account lockedDestination = lockedAccounts.stream()
+                .filter(a -> a.getId().equals(destinationAccount.getId()))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Destination account not found"));
+
+        validateAccountForTransaction(lockedSource);
+        validateAccountForTransaction(lockedDestination);
+
+        if(lockedSource.getBalance().compareTo(request.getAmount()) < 0) {
             throw new InsufficientBalanceException("Insufficient account balance");
         }
 
-        sourceAccount.setBalance(sourceAccount.getBalance().subtract(request.getAmount()));
-        destinationAccount.setBalance(destinationAccount.getBalance().add(request.getAmount()));
+        lockedSource.setBalance(lockedSource.getBalance().subtract(request.getAmount()));
+        lockedDestination.setBalance(lockedDestination.getBalance().add(request.getAmount()));
 
-        accountRepository.save(sourceAccount);
-        accountRepository.save(destinationAccount);
+//        accountRepository.save(sourceAccount);
+//        accountRepository.save(destinationAccount);
 
         Transaction transaction = new Transaction();
 
@@ -121,8 +155,8 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setTransactionType(TransactionType.TRANSFER);
         transaction.setStatus(TransactionStatus.SUCCESS);
         transaction.setRemarks(request.getRemarks());
-        transaction.setSourceAccount(sourceAccount);
-        transaction.setDestinationAccount(destinationAccount);
+        transaction.setSourceAccount(lockedSource);
+        transaction.setDestinationAccount(lockedDestination);
 
         Transaction savedTransaction = transactionRepository.save(transaction);
 
@@ -185,5 +219,24 @@ public class TransactionServiceImpl implements TransactionService {
         } while (transactionRepository.findByReferenceNumber(reference).isPresent());
 
         return reference;
+    }
+
+    private Account getCurrentCustomerAccountForUpdate(String accountNumber) {
+        String email = SecurityUtils.getCurrentUserEmail();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        Customer customer = customerRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Customer profile not found"));
+
+        Account account = accountRepository.findByAccountNumberForUpdate(accountNumber)
+                .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
+
+        if(!account.getCustomer().getId().equals(customer.getId())) {
+            throw new UnauthorizedException("You do not have access to this account");
+        }
+
+        return account;
     }
 }
