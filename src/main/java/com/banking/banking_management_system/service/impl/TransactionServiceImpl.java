@@ -4,19 +4,14 @@ import com.banking.banking_management_system.dto.request.transaction.DepositRequ
 import com.banking.banking_management_system.dto.request.transaction.TransferRequest;
 import com.banking.banking_management_system.dto.request.transaction.WithdrawRequest;
 import com.banking.banking_management_system.dto.response.transaction.TransactionResponse;
-import com.banking.banking_management_system.entity.Account;
-import com.banking.banking_management_system.entity.Customer;
-import com.banking.banking_management_system.entity.Transaction;
-import com.banking.banking_management_system.entity.User;
+import com.banking.banking_management_system.entity.*;
 import com.banking.banking_management_system.enums.AccountStatus;
+import com.banking.banking_management_system.enums.BeneficiaryStatus;
 import com.banking.banking_management_system.enums.TransactionStatus;
 import com.banking.banking_management_system.enums.TransactionType;
 import com.banking.banking_management_system.exception.*;
 import com.banking.banking_management_system.mapper.TransactionMapper;
-import com.banking.banking_management_system.repository.AccountRepository;
-import com.banking.banking_management_system.repository.CustomerRepository;
-import com.banking.banking_management_system.repository.TransactionRepository;
-import com.banking.banking_management_system.repository.UserRepository;
+import com.banking.banking_management_system.repository.*;
 import com.banking.banking_management_system.service.TransactionService;
 import com.banking.banking_management_system.util.SecurityUtils;
 import com.banking.banking_management_system.util.TransactionReferenceGenerator;
@@ -37,6 +32,7 @@ public class TransactionServiceImpl implements TransactionService {
     private final TransactionRepository transactionRepository;
     private final TransactionMapper transactionMapper;
     private final TransactionReferenceGenerator referenceGenerator;
+    private final BeneficiaryRepository beneficiaryRepository;
 
     @Override
     @Transactional
@@ -105,6 +101,14 @@ public class TransactionServiceImpl implements TransactionService {
 
         Account sourceAccount = accountRepository.findByAccountNumber(request.getSourceAccountNumber())
                 .orElseThrow(() -> new ResourceNotFoundException("Source account not found"));
+
+        Beneficiary beneficiary = beneficiaryRepository
+                .findByCustomerIdAndAccountNumber(customer.getId(), request.getDestinationAccountNumber())
+                .orElseThrow(() -> new InvalidTransactionException("Destination account is not a registered beneficiary"));
+
+        if(beneficiary.getStatus() != BeneficiaryStatus.ACTIVE) {
+            throw new InvalidTransactionException("Beneficiary is not active");
+        }
 
         Account destinationAccount = accountRepository.findByAccountNumber(request.getDestinationAccountNumber())
                 .orElseThrow(() -> new ResourceNotFoundException("Destination account not found"));

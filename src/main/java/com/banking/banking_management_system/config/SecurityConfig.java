@@ -70,7 +70,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/admin/**")
                         .hasRole("ADMIN")
 
-                        .requestMatchers("/api/v1/customers/**", "/api/v1/accounts/**")
+                        .requestMatchers("/api/v1/customers/**", "/api/v1/accounts/**", "/api/v1/transactions/**", "/api/v1/beneficiaries/**")
                         .authenticated()
 
                         .anyRequest()
