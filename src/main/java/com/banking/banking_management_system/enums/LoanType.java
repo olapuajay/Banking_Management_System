@@ -2,7 +2,7 @@ package com.banking.banking_management_system.enums;
 
 public enum LoanType {
     HOME,
-    CAR,
+    VEHICLE,
     PERSONAL,
     EDUCATION
 }
