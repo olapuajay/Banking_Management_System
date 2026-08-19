@@ -42,6 +42,9 @@ public class Loan extends BaseEntity {
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal outstandingAmount;
 
+    @Version
+    private Long version;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private LoanStatus status;

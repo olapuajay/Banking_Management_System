@@ -1,6 +1,8 @@
 package com.banking.banking_management_system.controller;
 
 import com.banking.banking_management_system.dto.request.loan.LoanApplicationRequest;
+import com.banking.banking_management_system.dto.request.loan.LoanDisbursementRequest;
+import com.banking.banking_management_system.dto.request.loan.LoanRepaymentRequest;
 import com.banking.banking_management_system.dto.response.loan.LoanResponse;
 import com.banking.banking_management_system.service.LoanService;
 import jakarta.validation.Valid;
@@ -48,5 +50,17 @@ public class LoanController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<LoanResponse> rejectLoan(@PathVariable Long loanId) {
         return ResponseEntity.ok(loanService.rejectLoan(loanId));
+    }
+
+    @PutMapping("/{loanId}/disburse")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<LoanResponse> disburseLoan(@PathVariable Long loanId, @Valid @RequestBody LoanDisbursementRequest request) {
+        return ResponseEntity.ok(loanService.disburseLoan(loanId, request));
+    }
+
+    @PostMapping("/{loanId}/repay")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public ResponseEntity<LoanResponse> repayLoan(@PathVariable Long loanId, @Valid @RequestBody LoanRepaymentRequest request) {
+        return ResponseEntity.ok(loanService.repayLoan(loanId, request));
     }
 }

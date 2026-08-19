@@ -14,7 +14,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     Optional<Transaction> findByReferenceNumber(String referenceNumber);
     Page<Transaction> findBySourceAccountIdOrDestinationAccountId(Long sourceAccountId, Long destinationAccountId, Pageable pageable);
     Page<Transaction> findByStatus(TransactionStatus status, Pageable pageable);
-
+    boolean existsByReferenceNumber(String referenceNumber);
     @Query("""
 SELECT t FROM Transaction t WHERE t.sourceAccount.customer.id = :customerId OR t.destinationAccount.customer.id = :customerId ORDER BY t.createdAt DESC
 """)
