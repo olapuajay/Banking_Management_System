@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
@@ -19,4 +21,57 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 SELECT t FROM Transaction t WHERE t.sourceAccount.customer.id = :customerId OR t.destinationAccount.customer.id = :customerId ORDER BY t.createdAt DESC
 """)
     Page<Transaction> findCustomerTransactions(@Param("customerId") Long customerId, Pageable pageable);
+
+    @Query("""
+SELECT t FROM Transaction t
+WHERE(
+t.sourceAccount.accountNumber = :accountNumber
+OR
+t.destinationAccount.accountNumber = :accountNumber
+)
+AND
+t.createdAt >= :from
+AND
+t.createdAt < :to
+AND
+t.status = 'SUCCESS'
+ORDER BY t.createdAt ASC
+""")
+    List<Transaction> findTransactionsForStatement(
+            @Param("accountNumber") String accountNumber,
+            @Param("from")LocalDateTime from,
+            @Param("to") LocalDateTime to
+            );
+
+    @Query("""
+SELECT t FROM Transaction  t
+WHERE(
+t.sourceAccount.accountNumber = :accountNumber
+OR
+t.destinationAccount.accountNumber = :accountNumber
+)
+AND t.createdAt < :from
+AND t.status = 'SUCCESS'
+ORDER BY t.createdAt ASC
+""")
+    List<Transaction> findTransactionsBefore(
+            @Param("accountNumber") String accountNumber,
+            @Param("from") LocalDateTime from
+            );
+
+    @Query("""
+SELECT t FROM Transaction t
+WHERE (
+    t.sourceAccount.accountNumber = :accountNumber
+    OR
+    t.destinationAccount.accountNumber = :accountNumber
+)
+AND t.createdAt >= :from
+AND t.status = 'SUCCESS'
+ORDER BY t.createdAt DESC
+""")
+    List<Transaction> findTransactionsFrom(
+            @Param("accountNumber") String accountNumber,
+            @Param("from") LocalDateTime from
+    );
 }
