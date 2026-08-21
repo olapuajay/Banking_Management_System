@@ -1,0 +1,29 @@
+package com.banking.banking_management_system.enums;
+
+public enum AuditAction {
+    REGISTER,
+    LOGIN_SUCCESS,
+    LOGIN_FAILED,
+    LOGOUT,
+
+    UPDATE_PROFILE,
+
+    CREATE_ACCOUNT,
+
+    DEPOSIT,
+    WITHDRAW,
+    TRANSFER,
+
+    ADD_BENEFICIARY,
+    ACTIVATE_BENEFICIARY,
+    REMOVE_BENEFICIARY,
+
+    APPLY_LOAN,
+    APPROVE_LOAN,
+    REJECT_LOAN,
+    DISBURSE_LOAN,
+    REPAY_LOAN,
+
+    BLOCK_ACCOUNT,
+    UNBLOCK_ACCOUNT
+}

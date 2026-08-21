@@ -1,15 +1,13 @@
 package com.banking.banking_management_system.service.impl;
 
+import com.banking.banking_management_system.annotation.Auditable;
 import com.banking.banking_management_system.config.LoanInterestRateConfig;
 import com.banking.banking_management_system.dto.request.loan.LoanApplicationRequest;
 import com.banking.banking_management_system.dto.request.loan.LoanDisbursementRequest;
 import com.banking.banking_management_system.dto.request.loan.LoanRepaymentRequest;
 import com.banking.banking_management_system.dto.response.loan.LoanResponse;
 import com.banking.banking_management_system.entity.*;
-import com.banking.banking_management_system.enums.AccountStatus;
-import com.banking.banking_management_system.enums.LoanStatus;
-import com.banking.banking_management_system.enums.TransactionStatus;
-import com.banking.banking_management_system.enums.TransactionType;
+import com.banking.banking_management_system.enums.*;
 import com.banking.banking_management_system.exception.*;
 import com.banking.banking_management_system.mapper.LoanMapper;
 import com.banking.banking_management_system.repository.*;
@@ -45,6 +43,7 @@ public class LoanServiceImpl implements LoanService {
     private final TransactionRepository transactionRepository;
     private final TransactionReferenceGenerator transactionReferenceGenerator;
 
+    @Auditable(action = AuditAction.APPLY_LOAN, resourceType = "LOAN")
     @Override
     @Transactional
     public LoanResponse applyForLoan(LoanApplicationRequest request) {
@@ -96,6 +95,7 @@ public class LoanServiceImpl implements LoanService {
         return loanMapper.toResponse(loan);
     }
 
+    @Auditable(action = AuditAction.APPROVE_LOAN, resourceType = "LOAN")
     @Override
     @Transactional
     public LoanResponse approveLoan(Long loanId) {
@@ -113,6 +113,7 @@ public class LoanServiceImpl implements LoanService {
         return loanMapper.toResponse(loan);
     }
 
+    @Auditable(action = AuditAction.REJECT_LOAN, resourceType = "LOAN")
     @Override
     @Transactional
     public LoanResponse rejectLoan(Long loanId) {
@@ -128,6 +129,7 @@ public class LoanServiceImpl implements LoanService {
         return loanMapper.toResponse(loan);
     }
 
+    @Auditable(action = AuditAction.DISBURSE_LOAN, resourceType = "LOAN")
     @Override
     @Transactional
     public LoanResponse disburseLoan(Long loanId, LoanDisbursementRequest request) {
@@ -164,6 +166,7 @@ public class LoanServiceImpl implements LoanService {
         return loanMapper.toResponse(loan);
     }
 
+    @Auditable(action = AuditAction.REPAY_LOAN, resourceType = "LOAN")
     @Override
     @Transactional
     public LoanResponse repayLoan(Long loanId, LoanRepaymentRequest request) {

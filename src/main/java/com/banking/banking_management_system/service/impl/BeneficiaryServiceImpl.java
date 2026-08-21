@@ -1,10 +1,12 @@
 package com.banking.banking_management_system.service.impl;
 
+import com.banking.banking_management_system.annotation.Auditable;
 import com.banking.banking_management_system.dto.request.beneficiary.AddBeneficiaryRequest;
 import com.banking.banking_management_system.dto.response.beneficiary.BeneficiaryResponse;
 import com.banking.banking_management_system.entity.Beneficiary;
 import com.banking.banking_management_system.entity.Customer;
 import com.banking.banking_management_system.entity.User;
+import com.banking.banking_management_system.enums.AuditAction;
 import com.banking.banking_management_system.enums.BeneficiaryStatus;
 import com.banking.banking_management_system.exception.DuplicateResourceException;
 import com.banking.banking_management_system.exception.InvalidTransactionException;
@@ -29,6 +31,7 @@ public class BeneficiaryServiceImpl implements BeneficiaryService {
     private final UserRepository userRepository;
     private final BeneficiaryMapper beneficiaryMapper;
 
+    @Auditable(action = AuditAction.ADD_BENEFICIARY, resourceType = "BENEFICIARY")
     @Override
     @Transactional
     public BeneficiaryResponse addBeneficiary(AddBeneficiaryRequest request) {
@@ -75,6 +78,7 @@ public class BeneficiaryServiceImpl implements BeneficiaryService {
         return beneficiaryMapper.toResponse(beneficiary);
     }
 
+    @Auditable(action = AuditAction.ACTIVATE_BENEFICIARY, resourceType = "BENEFICIARY")
     @Override
     @Transactional
     public BeneficiaryResponse activateBeneficiary(Long beneficiaryId) {
@@ -93,6 +97,7 @@ public class BeneficiaryServiceImpl implements BeneficiaryService {
         return beneficiaryMapper.toResponse(beneficiary);
     }
 
+    @Auditable(action = AuditAction.REMOVE_BENEFICIARY, resourceType = "BENEFICIARY")
     @Override
     @Transactional
     public void removeBeneficiary(Long beneficiaryId) {

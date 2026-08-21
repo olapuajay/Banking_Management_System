@@ -1,14 +1,12 @@
 package com.banking.banking_management_system.service.impl;
 
+import com.banking.banking_management_system.annotation.Auditable;
 import com.banking.banking_management_system.dto.request.transaction.DepositRequest;
 import com.banking.banking_management_system.dto.request.transaction.TransferRequest;
 import com.banking.banking_management_system.dto.request.transaction.WithdrawRequest;
 import com.banking.banking_management_system.dto.response.transaction.TransactionResponse;
 import com.banking.banking_management_system.entity.*;
-import com.banking.banking_management_system.enums.AccountStatus;
-import com.banking.banking_management_system.enums.BeneficiaryStatus;
-import com.banking.banking_management_system.enums.TransactionStatus;
-import com.banking.banking_management_system.enums.TransactionType;
+import com.banking.banking_management_system.enums.*;
 import com.banking.banking_management_system.exception.*;
 import com.banking.banking_management_system.mapper.TransactionMapper;
 import com.banking.banking_management_system.repository.*;
@@ -34,6 +32,7 @@ public class TransactionServiceImpl implements TransactionService {
     private final TransactionReferenceGenerator referenceGenerator;
     private final BeneficiaryRepository beneficiaryRepository;
 
+    @Auditable(action = AuditAction.DEPOSIT, resourceType = "TRANSACTION")
     @Override
     @Transactional
     public TransactionResponse deposit(DepositRequest request) {
@@ -59,6 +58,7 @@ public class TransactionServiceImpl implements TransactionService {
         return transactionMapper.toResponse(savedTransaction);
     }
 
+    @Auditable(action = AuditAction.WITHDRAW, resourceType = "TRANSACTION")
     @Override
     @Transactional
     public TransactionResponse withdraw(WithdrawRequest request) {
@@ -88,6 +88,7 @@ public class TransactionServiceImpl implements TransactionService {
         return transactionMapper.toResponse(savedTransaction);
     }
 
+    @Auditable(action = AuditAction.TRANSFER, resourceType = "TRANSACTION")
     @Override
     @Transactional
     public TransactionResponse transfer(TransferRequest request) {
