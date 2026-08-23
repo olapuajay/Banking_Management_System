@@ -4,6 +4,7 @@ import com.banking.banking_management_system.dto.request.loan.LoanApplicationReq
 import com.banking.banking_management_system.dto.request.loan.LoanDisbursementRequest;
 import com.banking.banking_management_system.dto.request.loan.LoanRepaymentRequest;
 import com.banking.banking_management_system.dto.response.loan.LoanResponse;
+import com.banking.banking_management_system.entity.Loan;
 import com.banking.banking_management_system.service.LoanService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -56,6 +57,14 @@ public class LoanController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<LoanResponse> disburseLoan(@PathVariable Long loanId, @Valid @RequestBody LoanDisbursementRequest request) {
         return ResponseEntity.ok(loanService.disburseLoan(loanId, request));
+    }
+
+    @GetMapping("/allLoans")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Page<LoanResponse>> getAllLoans(Pageable pageable) {
+        return ResponseEntity.ok(
+                loanService.getAllLoans(pageable)
+        );
     }
 
     @PostMapping("/{loanId}/repay")

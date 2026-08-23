@@ -8,9 +8,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface LoanRepository extends JpaRepository<Loan, Long> {
+public interface
+LoanRepository extends JpaRepository<Loan, Long> {
     Optional<Loan> findByLoanNumber(String loanNumber);
     Page<Loan> findByCustomerId(Long customerId, Pageable pageable);
     Page<Loan> findByStatus(LoanStatus status, Pageable pageable);
     boolean existsByLoanNumber(String loanNumber);
+    long countByStatus(LoanStatus status);
+    Page<Loan> findAllByOrderByApplicationDateDesc(Pageable pageable);
 }

@@ -15,4 +15,5 @@ public interface LoanService {
     LoanResponse rejectLoan(Long loanId);
     LoanResponse disburseLoan(Long loanId, LoanDisbursementRequest request);
     LoanResponse repayLoan(Long loanId, LoanRepaymentRequest request);
+    Page<LoanResponse> getAllLoans(Pageable pageable);
 }

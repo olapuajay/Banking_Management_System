@@ -27,4 +27,5 @@ SELECT a FROM Account a WHERE a.accountNumber = :accountNumber
 SELECT a FROM Account a WHERE a.id IN :accountIds ORDER BY a.id
 """)
     List<Account> findAccountsForUpdate(@Param("accountIds") List<Long> accountIds);
+    long countByStatus(AccountStatus status);
 }

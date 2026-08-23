@@ -215,6 +215,14 @@ public class LoanServiceImpl implements LoanService {
         return loanMapper.toResponse(loan);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public Page<LoanResponse> getAllLoans(Pageable pageable) {
+        return loanRepository
+                .findAllByOrderByApplicationDateDesc(pageable)
+                .map(loanMapper::toResponse);
+    }
+
     private Customer getCurrentCustomer() {
         String email = SecurityUtils.getCurrentUserEmail();
 
