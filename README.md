@@ -583,22 +583,6 @@ Contributions are welcome! Please follow these guidelines:
 - Keep methods small and focused
 - Use meaningful variable and method names
 
-### Commit Message Format
-
-```
-type(scope): brief description
-
-Detailed explanation of the changes made.
-
-Closes #issue_number
-```
-
-Types: feat, fix, docs, style, refactor, test, chore
-
-## License
-
-[Add your license information here]
-
 ## Support
 
 For issues, questions, or suggestions:
@@ -608,7 +592,7 @@ For issues, questions, or suggestions:
 
 ## Authors
 
-- **Ajay Olap** - Project Lead
+- **Ajay Olapu** - Project Lead
 
 ---
 
